@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área de Clientes - CloudImage Solutions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-cloud-upload-alt text-blue-600 text-3xl mr-3"></i>
+                    <span class="text-2xl font-bold text-gray-800">CloudImage Solutions</span>
+                </div>
+                <div class="flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-600 hover:text-blue-600 transition">Início</a>
+                    <a href="historia.html" class="text-gray-600 hover:text-blue-600 transition">História</a>
+                    <a href="sobre.html" class="text-gray-600 hover:text-blue-600 transition">Sobre Nós</a>
+                    <a href="http://alb-api-projeto-1577545495.us-east-2.elb.amazonaws.com/" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">Área de Clientes</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Área de Clientes</h1>
+            <p class="text-gray-600">Faça upload de imagens, visualize e gerencie seus arquivos</p>
+        </div>
+
+        <!-- Tabs de Navegação -->
+        <div class="bg-white rounded-lg shadow-md mb-6">
+            <div class="border-b border-gray-200">
+                <nav class="flex -mb-px">
+                    <button id="tab-upload" class="tab-button active px-6 py-4 text-sm font-medium text-blue-600 border-b-2 border-blue-600">
+                        Upload de Imagem
+                    </button>
+                    <button id="tab-list" class="tab-button px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        Listar Imagens
+                    </button>
+                    <button id="tab-view" class="tab-button px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        Visualizar Base64
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Seção de Upload -->
+        <div id="section-upload" class="tab-content">
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-6">Fazer Upload de Imagem</h2>
+                
+                <form id="upload-form" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Selecione uma imagem
+                        </label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-blue-400 transition duration-300">
+                            <div class="space-y-1 text-center">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <div class="flex text-sm text-gray-600">
+                                    <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
+                                        <span>Selecione um arquivo</span>
+                                        <input id="file-upload" name="file-upload" type="file" accept="image/*" class="sr-only" />
+                                    </label>
+                                    <p class="pl-1">ou arraste e solte</p>
+                                </div>
+                                <p class="text-xs text-gray-500">PNG, JPG, GIF até 10MB</p>
+                            </div>
+                        </div>
+                        <div id="file-name" class="mt-2 text-sm text-gray-600 hidden"></div>
+                    </div>
+
+                    <div>
+                        <label for="tags" class="block text-sm font-medium text-gray-700 mb-2">
+                            Tags (separadas por vírgula)
+                        </label>
+                        <input type="text" id="tags" name="tags" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="ex: natureza, paisagem, 2024">
+                        <p class="mt-1 text-sm text-gray-500">Adicione tags para facilitar a busca e organização</p>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button type="submit" 
+                                class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-300">
+                            Enviar Imagem
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Feedback de Upload -->
+                <div id="upload-feedback" class="mt-6 hidden">
+                    <div id="upload-success" class="bg-green-50 border border-green-200 rounded-md p-4 hidden">
+                        <div class="flex">
+                            <svg class="h-5 w-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                            <p class="text-sm text-green-800" id="upload-success-message"></p>
+                        </div>
+                    </div>
+                    <div id="upload-error" class="bg-red-50 border border-red-200 rounded-md p-4 hidden">
+                        <div class="flex">
+                            <svg class="h-5 w-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                            </svg>
+                            <p class="text-sm text-red-800" id="upload-error-message"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Listagem -->
+        <div id="section-list" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-800">Imagens Armazenadas</h2>
+                    <button id="refresh-list" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">
+                        Atualizar Lista
+                    </button>
+                </div>
+
+                <div id="list-filters" class="mb-6">
+                    <input type="text" id="search-tags" 
+                           class="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="Buscar por tags...">
+                </div>
+
+                <div id="images-list" class="space-y-4">
+                    <div class="text-center py-12 text-gray-500">
+                        <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <p>Nenhuma imagem encontrada. Faça upload de uma imagem para começar.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Visualização Base64 -->
+        <div id="section-view" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-6">Visualizar Conversão Base64</h2>
+                
+                <div class="mb-6">
+                    <label for="select-image" class="block text-sm font-medium text-gray-700 mb-2">
+                        Selecione uma imagem para visualizar
+                    </label>
+                    <select id="select-image" 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Selecione uma imagem...</option>
+                    </select>
+                </div>
+
+                <div id="base64-content" class="hidden">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">String Base64</label>
+                        <textarea id="base64-text" 
+                                  class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 font-mono text-xs"
+                                  rows="10" readonly></textarea>
+                        <button id="copy-base64" class="mt-2 bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition duration-300">
+                            Copiar Base64
+                        </button>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Preview da Imagem</label>
+                        <div class="border border-gray-300 rounded-md p-4 bg-gray-50">
+                            <img id="base64-preview" src="" alt="Preview" class="max-w-full max-h-96 mx-auto rounded">
+                        </div>
+                    </div>
+
+                    <div id="image-metadata" class="bg-gray-50 rounded-md p-4">
+                        <h3 class="font-semibold text-gray-800 mb-2">Metadados</h3>
+                        <div id="metadata-content" class="text-sm text-gray-600 space-y-1"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">CloudImage Solutions</h3>
+                    <p class="text-gray-400">Soluções em nuvem para empresas que buscam inovação e eficiência.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Links Rápidos</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="index.html" class="hover:text-white">Início</a></li>
+                        <li><a href="sobre.html" class="hover:text-white">Sobre Nós</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contato</h4>
+                    <p class="text-gray-400">Email: contato@cloudimage.com</p>
+                    <p class="text-gray-400">Projeto Insper - Cloud Computing</p>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 CloudImage Solutions. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/clientes.js"></script>
+</body>
+</html>
