@@ -1,19 +1,20 @@
-from flask import Flask, jsonify, request, render_template # Importa render_template
+from flask import Flask, jsonify, request, render_template
 import boto3
 from botocore.client import Config
 from boto3.dynamodb.conditions import Key, Attr
 import os
 
-app = Flask(__name__) # O Flask automaticamente encontra as pastas 'static' e 'templates'
+app = Flask(__name__)
 
 # --- Configuração ---
-# !! IMPORTANTE: Verifique se estes nomes estão corretos !!
 S3_UPLOAD_BUCKET = "uploads-privados-projeto-lucas" 
 DYNAMO_TABLE_NAME = "imagens_base64_projeto"
+# ADICIONADO: Definir a região explicitamente para evitar o erro NoRegionError
+AWS_REGION = "us-east-2"
 
-# Inicializa os clientes
-s3_client = boto3.client('s3', config=Config(signature_version='s3v4'))
-dynamodb = boto3.resource('dynamodb')
+# Inicializa os clientes com a região definida
+s3_client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=AWS_REGION)
+dynamodb = boto3.resource('dynamodb', region_name=AWS_REGION)
 table = dynamodb.Table(DYNAMO_TABLE_NAME)
 
 # --- Endpoint de Saúde ---
@@ -50,13 +51,9 @@ def generate_upload_url():
 @app.route('/api/images', methods=['GET'])
 def list_images():
     try:
-        # A lógica do seu JS parece esperar por 'tags', 'createdAt', etc.
-        # Minha lógica 'meta' simples pode precisar de mais campos,
-        # mas por enquanto, isso listará os itens.
         response = table.scan(
             FilterExpression=Attr('chunkId').eq('meta')
         )
-        # O seu JS também espera 'filename'. Vamos adicionar um fallback.
         items = response.get('Items', [])
         for item in items:
             item['filename'] = item.get('imageId', 'NomeDesconhecido') 
@@ -94,25 +91,23 @@ def get_image_base64(imageId):
             chunk_key = f"chunk_{i:04d}"
             base64_string += chunks.get(chunk_key, "")
             
-        # O seu JS espera um objeto mais rico
         return jsonify({
             "imageId": imageId,
             "filename": imageId,
             "contentType": meta_item.get('contentType'),
             "base64data": base64_string,
             "size": meta_item.get('sizeBytes'),
-            "createdAt": meta_item.get('createdAt', '2025-01-01'), # Adicione createdAt se você salvar no Lambda
-            "tags": meta_item.get('tags', []) # Adicione tags se você salvar no Lambda
+            "createdAt": meta_item.get('createdAt', '2025-01-01'),
+            "tags": meta_item.get('tags', [])
         })
             
     except Exception as e:
         print(f"Erro ao buscar imagem: {e}")
         return jsonify({"error": str(e)}), 500
 
-# --- Endpoint do Front-End (MODIFICADO) ---
+# --- Endpoint do Front-End ---
 @app.route('/')
 def serve_client_html():
-    # Serve o arquivo 'clientes.html' da pasta 'templates/'
     return render_template('clientes.html')
 
 if __name__ == '__main__':
