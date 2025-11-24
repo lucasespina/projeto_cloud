@@ -7,7 +7,7 @@ import os
 app = Flask(__name__)
 
 # --- Configuração ---
-S3_UPLOAD_BUCKET = "uploads-privados-projeto-lucas" 
+S3_UPLOAD_BUCKET = "upload-projetcloud"
 DYNAMO_TABLE_NAME = "imagens_base64_projeto"
 # ADICIONADO: Definir a região explicitamente para evitar o erro NoRegionError
 AWS_REGION = "us-east-2"
@@ -36,7 +36,7 @@ def generate_upload_url():
         presigned_url = s3_client.generate_presigned_url(
             'put_object',
             Params={
-                'Bucket': S3_UPLOAD_BUCKET,
+                'Bucket':S3_UPLOAD_BUCKET,
                 'Key': filename,
                 'ContentType': content_type
             },
