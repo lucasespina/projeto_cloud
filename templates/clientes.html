@@ -20,7 +20,6 @@
                     <span class="text-2xl font-bold text-gray-800">CloudImage Solutions</span>
                 </div>
                 <div class="flex items-center space-x-8">
-                    <!-- Links para o S3 (Atualiza com o teu link do bucket se precisares) -->
                     <a href="http://projetocloudkitw.s3-website.us-east-2.amazonaws.com/index.html" class="text-gray-600 hover:text-blue-600 transition">Início</a>
                     <a href="http://projetocloudkitw.s3-website.us-east-2.amazonaws.com/historia.html" class="text-gray-600 hover:text-blue-600 transition">História</a>
                     <a href="http://projetocloudkitw.s3-website.us-east-2.amazonaws.com/sobre.html" class="text-gray-600 hover:text-blue-600 transition">Sobre Nós</a>
@@ -41,14 +40,11 @@
         <div class="bg-white rounded-lg shadow-md mb-6">
             <div class="border-b border-gray-200">
                 <nav class="flex -mb-px">
-                    <button id="tab-upload" class="tab-button active px-6 py-4 text-sm font-medium text-blue-600 border-b-2 border-blue-600">
+                    <button id="tab-upload" onclick="switchTab('upload')" class="tab-button active px-6 py-4 text-sm font-medium text-blue-600 border-b-2 border-blue-600">
                         Upload de Imagem
                     </button>
-                    <button id="tab-list" class="tab-button px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                        Listar Imagens
-                    </button>
-                    <button id="tab-view" class="tab-button px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                        Visualizar Base64
+                    <button id="tab-list" onclick="switchTab('list')" class="tab-button px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        Galeria de Imagens
                     </button>
                 </nav>
             </div>
@@ -59,7 +55,7 @@
             <div class="bg-white rounded-lg shadow-md p-8">
                 <h2 class="text-2xl font-semibold text-gray-800 mb-6">Fazer Upload de Imagem</h2>
                 
-                <form id="upload-form" class="space-y-6">
+                <div class="space-y-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             Selecione uma imagem
@@ -68,9 +64,9 @@
                             <div class="space-y-1 text-center">
                                 <i class="fas fa-image text-4xl text-gray-400 mb-3"></i>
                                 <div class="flex text-sm text-gray-600 justify-center">
-                                    <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
+                                    <label for="fileInput" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
                                         <span>Selecione um arquivo</span>
-                                        <input id="file-upload" name="file-upload" type="file" accept="image/*" class="sr-only" />
+                                        <input id="fileInput" type="file" accept="image/*" class="sr-only" onchange="document.getElementById('file-name').innerText = this.files[0].name; document.getElementById('file-name').classList.remove('hidden');" />
                                     </label>
                                 </div>
                                 <p class="text-xs text-gray-500">PNG, JPG, GIF até 10MB</p>
@@ -80,14 +76,10 @@
                     </div>
 
                     <div class="flex justify-end">
-                        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition duration-300">
+                        <button onclick="uploadImage()" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition duration-300">
                             Enviar Imagem
                         </button>
                     </div>
-                </form>
-
-                <div id="upload-feedback" class="mt-6 hidden">
-                    <p class="text-sm" id="upload-message"></p>
                 </div>
             </div>
         </div>
@@ -97,27 +89,31 @@
             <div class="bg-white rounded-lg shadow-md p-8">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-semibold text-gray-800">Imagens Armazenadas</h2>
-                    <button id="refresh-list" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">
+                    <button onclick="loadImages()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">
                         Atualizar Lista
                     </button>
                 </div>
-                <div id="images-list" class="space-y-4"></div>
+                <div id="imageList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </div>
         </div>
 
-        <!-- Seção de Visualização Base64 -->
-        <div id="section-view" class="tab-content hidden">
-            <div class="bg-white rounded-lg shadow-md p-8">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-6">Visualizar Conversão Base64</h2>
-                <div class="mb-6">
-                    <select id="select-image" class="w-full px-4 py-2 border border-gray-300 rounded-md">
-                        <option value="">Selecione uma imagem...</option>
-                    </select>
+        <!-- MODAL -->
+        <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold">Detalhes</h3>
+                    <button onclick="closeModal()" class="text-gray-500 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
                 </div>
-                <div id="base64-content" class="hidden">
-                    <textarea id="base64-text" class="w-full px-4 py-2 border border-gray-300 rounded-md font-mono text-xs" rows="10" readonly></textarea>
-                    <div class="mt-4 border p-4 rounded bg-gray-50 text-center">
-                        <img id="base64-preview" src="" alt="Preview" class="max-w-full max-h-96 mx-auto">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-gray-100 rounded p-2 flex items-center justify-center">
+                        <img id="modalImage" src="" class="max-w-full h-auto">
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Base64</label>
+                            <textarea id="modalBase64" readonly class="w-full h-32 p-2 border rounded text-xs font-mono bg-gray-50 mt-1"></textarea>
+                        </div>
+                        <button onclick="copyBase64()" class="w-full bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900">Copiar Base64</button>
                     </div>
                 </div>
             </div>
@@ -128,8 +124,140 @@
         <p>&copy; 2025 CloudImage Solutions. Todos os direitos reservados.</p>
     </footer>
 
-    <!-- CORREÇÃO AQUI: Adicionado /static/ antes de js -->
     <script src="/static/js/main.js"></script>
-    <script src="/static/js/clientes.js"></script>
+    <!-- Script inline com a lógica atualizada -->
+    <script>
+        function switchTab(tabName) {
+            // Esconde todas as seções
+            document.getElementById('section-upload').classList.add('hidden');
+            document.getElementById('section-list').classList.add('hidden');
+            
+            // Remove estilos ativos dos botões
+            const btnUpload = document.getElementById('tab-upload');
+            const btnList = document.getElementById('tab-list');
+            
+            btnUpload.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+            btnUpload.classList.add('text-gray-500', 'hover:text-gray-700');
+            
+            btnList.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+            btnList.classList.add('text-gray-500', 'hover:text-gray-700');
+
+            // Mostra a seção selecionada e ativa o botão
+            const section = document.getElementById('section-' + tabName);
+            const btn = document.getElementById('tab-' + tabName);
+            
+            if (section) section.classList.remove('hidden');
+            if (btn) {
+                btn.classList.remove('text-gray-500', 'hover:text-gray-700');
+                btn.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+            }
+
+            if (tabName === 'list') loadImages();
+        }
+
+        async function uploadImage() {
+            const fileInput = document.getElementById('fileInput');
+            
+            if (!fileInput) {
+                alert('Erro: Elemento de input não encontrado!');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            if (!file) return alert('Selecione um arquivo!');
+
+            try {
+                // 1. Pede URL assinada
+                const res = await fetch('/api/generate-upload-url', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ filename: file.name, contentType: file.type })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Erro ao gerar URL');
+
+                // 2. Envia direto para o S3
+                const s3Res = await fetch(data.uploadUrl, {
+                    method: 'PUT',
+                    headers: {'Content-Type': file.type},
+                    body: file
+                });
+                if (!s3Res.ok) throw new Error('Erro no upload S3');
+
+                alert('Sucesso! A imagem foi enviada.');
+                fileInput.value = '';
+                document.getElementById('file-name').innerText = '';
+                document.getElementById('file-name').classList.add('hidden');
+                switchTab('list');
+
+            } catch (e) {
+                console.error(e);
+                alert('Erro: ' + e.message);
+            }
+        }
+
+        async function loadImages() {
+            const list = document.getElementById('imageList');
+            if (!list) return;
+            
+            list.innerHTML = '<p class="text-gray-500">Carregando...</p>';
+
+            try {
+                const res = await fetch('/api/images');
+                const items = await res.json();
+                list.innerHTML = '';
+                
+                if (items.length === 0) {
+                    list.innerHTML = '<p class="text-gray-500">Nenhuma imagem encontrada.</p>';
+                    return;
+                }
+
+                items.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'border rounded p-4 flex justify-between items-center bg-white shadow-sm hover:shadow-md transition';
+                    div.innerHTML = `
+                        <div class="truncate">
+                            <p class="font-bold text-gray-800 truncate w-40">${item.filename}</p>
+                            <p class="text-xs text-gray-500">${item.contentType}</p>
+                        </div>
+                        <button onclick="openImage('${item.imageId}')" class="bg-blue-100 text-blue-600 px-3 py-1 rounded hover:bg-blue-200 text-sm font-medium">
+                            Ver
+                        </button>
+                    `;
+                    list.appendChild(div);
+                });
+            } catch (e) {
+                console.error(e);
+                list.innerHTML = '<p class="text-red-500">Erro ao carregar lista.</p>';
+            }
+        }
+
+        async function openImage(id) {
+            try {
+                const res = await fetch('/api/images/' + id);
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                
+                document.getElementById('modalImage').src = `data:${data.contentType};base64,${data.base64data}`;
+                document.getElementById('modalBase64').value = data.base64data;
+                document.getElementById('imageModal').classList.remove('hidden');
+            } catch (e) {
+                alert('Erro ao baixar imagem: ' + e.message);
+            }
+        }
+
+        function closeModal() { 
+            const modal = document.getElementById('imageModal');
+            if (modal) modal.classList.add('hidden'); 
+        }
+        
+        function copyBase64() {
+            const text = document.getElementById('modalBase64');
+            if (text) {
+                navigator.clipboard.writeText(text.value);
+                alert('Copiado!');
+            }
+        }
+    </script>
 </body>
 </html>
